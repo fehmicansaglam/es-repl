@@ -1,41 +1,43 @@
 package net.fehmicansaglam.elasticsearch.repl;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import jline.console.ConsoleReader;
 
-class REPLConsole {
+public abstract class AbstractConsole {
 
-    private static String remote = "idle";
+    private ConsoleReader reader;
 
-    private static String prompt() {
-        return "[elasticsearch:" + remote + "] $ ";
+    protected abstract Interpreter interpreter();
+
+    protected void updatePrompt() {
+        reader.setPrompt(interpreter().prompt());
     }
 
-    public static void start() throws Exception {
-        ConsoleReader reader = new ConsoleReader();
-        reader.setPrompt(prompt());
+    public void start() throws IOException {
+        reader = new ConsoleReader();
+        reader.setPrompt(interpreter().prompt());
         PrintWriter out = new PrintWriter(reader.getOutput());
 
         String line;
         loop:
         while ((line = reader.readLine()) != null) {
-            out.println("======>\"" + line + "\"");
-            out.flush();
-
             switch (line) {
                 case "quit":
                 case "q":
                 case "exit":
-                case "bye":
                     break loop;
                 case "clear":
                 case "cl":
                     // Because of a problem with SBT.
                     reader.setPrompt("");
                     reader.clearScreen();
-                    reader.setPrompt(prompt());
+                    reader.setPrompt(interpreter().prompt());
                     break;
+                default:
+                    out.println(interpreter().interpret(line));
+                    out.flush();
             }
         }
 
