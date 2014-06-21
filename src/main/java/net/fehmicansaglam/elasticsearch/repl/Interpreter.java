@@ -5,4 +5,6 @@ public interface Interpreter {
     public String interpret(String input);
 
     public String prompt();
+
+    public void shutdown();
 }

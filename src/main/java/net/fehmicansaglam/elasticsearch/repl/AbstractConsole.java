@@ -44,6 +44,7 @@ public abstract class AbstractConsole {
         out.println("See you soon!");
         out.flush();
         reader.shutdown();
+        interpreter().shutdown();
     }
 
 }

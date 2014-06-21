@@ -6,12 +6,17 @@ trait Command
 case class Connect(host: String, port: Int) extends Command
 case object Disconnect extends Command
 case class Get(index: String, id: String)
+case class Index(index: String, json: String)
+case class Delete(index: String, id: String)
+case class Search(index: String, query: Option[String])
 
 class CommandParser(val input: ParserInput) extends Parser {
 
   def CommandLine = rule { WhiteSpace ~ Command ~ EOI }
 
-  def Command = rule { DisconnectCommand | ConnectCommand | GetCommand }
+  def Command = rule {
+    DisconnectCommand | ConnectCommand | GetCommand | IndexCommand | DeleteCommand | SearchCommand
+  }
 
   def ConnectCommand: Rule1[Connect] = rule {
     "connect" ~ (HostDefinition | (push("localhost") ~ push(9300))) ~> Connect
@@ -21,6 +26,18 @@ class CommandParser(val input: ParserInput) extends Parser {
 
   def GetCommand: Rule1[Get] = rule {
     "get" ~ Id ~ "from" ~ IndexDefinition ~> ((id: String, index: String) => Get(index, id))
+  }
+
+  def IndexCommand: Rule1[Index] = rule {
+    "index" ~ "into" ~ IndexDefinition ~ JsonDefinition ~> Index
+  }
+
+  def DeleteCommand: Rule1[Delete] = rule {
+    "delete" ~ Id ~ "from" ~ IndexDefinition ~> ((id: String, index: String) => Delete(index, id))
+  }
+
+  def SearchCommand: Rule1[Search] = rule {
+    "search" ~ "in" ~ IndexDefinition ~ optional(QueryDefinition) ~> Search
   }
 
   def HostDefinition: Rule2[String, Int] = rule { (Host ~ Port) | (Host ~ push(9300)) }
@@ -33,7 +50,17 @@ class CommandParser(val input: ParserInput) extends Parser {
 
   def Id: Rule1[String] = rule { capture(oneOrMore(CharPredicate.Visible)) ~ WhiteSpace }
 
-  def IndexDefinition: Rule1[String] = rule { capture(oneOrMore(CharPredicate.Visible)) ~ WhiteSpace }
+  def IndexDefinition: Rule1[String] = rule {
+    capture(oneOrMore(CharPredicate.Visible)) ~ WhiteSpace
+  }
+
+  def JsonDefinition: Rule1[String] = rule {
+    capture(oneOrMore(CharPredicate.Printable)) ~ WhiteSpace
+  }
+
+  def QueryDefinition: Rule1[String] = rule {
+    capture(oneOrMore(CharPredicate.Visible)) ~ WhiteSpace
+  }
 
   def WhiteSpace = rule { zeroOrMore(' ') }
 
