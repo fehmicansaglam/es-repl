@@ -9,13 +9,15 @@ case class Get(index: String, id: String)
 case class Index(index: String, json: String)
 case class Delete(index: String, id: String)
 case class Search(index: String, query: Option[String])
+case class Count(index: String, query: Option[String])
+case class GetMappings(index: String)
 
 class CommandParser(val input: ParserInput) extends Parser {
 
   def CommandLine = rule { WhiteSpace ~ Command ~ EOI }
 
   def Command = rule {
-    DisconnectCommand | ConnectCommand | GetCommand | IndexCommand | DeleteCommand | SearchCommand
+    DisconnectCommand | ConnectCommand | GetCommand | IndexCommand | DeleteCommand | SearchCommand | CountCommand | GetMappingsCommand
   }
 
   def ConnectCommand: Rule1[Connect] = rule {
@@ -38,6 +40,14 @@ class CommandParser(val input: ParserInput) extends Parser {
 
   def SearchCommand: Rule1[Search] = rule {
     "search" ~ "in" ~ IndexDefinition ~ optional(QueryDefinition) ~> Search
+  }
+
+  def CountCommand: Rule1[Count] = rule {
+    "count" ~ IndexDefinition ~ optional(QueryDefinition) ~> Count
+  }
+
+  def GetMappingsCommand: Rule1[GetMappings] = rule {
+    "mappings" ~ IndexDefinition ~> GetMappings
   }
 
   def HostDefinition: Rule2[String, Int] = rule { (Host ~ Port) | (Host ~ push(9300)) }

@@ -21,6 +21,8 @@ libraryDependencies <++= scalaVersion { scalaVersion =>
     "org.scala-lang" % "scala-reflect" % "2.11.1",
     "com.sksamuel.elastic4s" %% "elastic4s" % "1.2.1.1" intransitive(),
     "org.elasticsearch" % "elasticsearch" % "1.2.1",
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.4.1",
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.1",
     "jline" % "jline" % "2.12")
 }
 

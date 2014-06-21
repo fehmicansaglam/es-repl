@@ -4,6 +4,9 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.source.DocumentSource
 import org.elasticsearch.action.index.IndexResponse
+import com.fasterxml.jackson.databind.ObjectMapper
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 object DefaultConsole extends AbstractConsole with Interpreter {
 
@@ -11,10 +14,7 @@ object DefaultConsole extends AbstractConsole with Interpreter {
 
   var remote: String = "disconnected"
 
-  val connectPattern1 = "connect (\\S+)$".r
-  val connectPattern2 = "connect (\\S+) ([0-9]+)$".r
-  val indexPattern1 = """index into (\S+) ("\S+?"->"\S+?")(,"\S+?"->"\S+?")*$""".r
-  val getPattern = "get (\\S+) from (\\S+)$".r
+  val mapper = new ObjectMapper
 
   def prompt: String = Ansi.format("[", Ansi.Color.BLUE) + Ansi.format("es", Ansi.Color.GREEN) + Ansi.format(":", Ansi.Color.BLUE) + Ansi.format(remote, Ansi.Color.CYAN) + Ansi.format("] $ ", Ansi.Color.BLUE)
 
@@ -98,6 +98,26 @@ object DefaultConsole extends AbstractConsole with Interpreter {
     Success(response.toString)
   }
 
+  def doCount(_index: String, _query: Option[String]): InterpretationResult = connected { client =>
+    val response = client.sync.execute {
+      _query.map { _query =>
+        count from _index query _query
+      }.getOrElse(count from _index)
+    }
+
+    Success(response.getCount.toString)
+  }
+
+  def doGetMappings(_index: String): InterpretationResult = connected { client =>
+    val response = Await.result(
+      client.execute {
+        mapping from _index
+      }, 5 seconds)
+
+    val types = response.mappings.get(_index).iterator
+    Success(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(types))
+  }
+
   def interpret(input: String): String = {
     new CommandParser(input).CommandLine.run().map {
       case Disconnect => doDisconnect()
@@ -106,6 +126,8 @@ object DefaultConsole extends AbstractConsole with Interpreter {
       case Index(index, json) => doIndex(index, json)
       case Delete(index, id) => doDelete(index, id)
       case Search(index, query) => doSearch(index, query)
+      case Count(index, query) => doCount(index, query)
+      case GetMappings(index) => doGetMappings(index)
       case _ => Warning("Not supported yet:(")
     }.recover {
       case pe: org.parboiled2.ParseError => Warning(pe.formatTraces)
