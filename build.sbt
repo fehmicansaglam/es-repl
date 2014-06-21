@@ -18,7 +18,9 @@ scalacOptions := Seq(
 libraryDependencies <++= scalaVersion { scalaVersion =>
   Seq(
     "org.parboiled" %% "parboiled" % "2.0.0",
-    "com.sksamuel.elastic4s" %% "elastic4s" % "1.2.1.1",
+    "org.scala-lang" % "scala-reflect" % "2.11.1",
+    "com.sksamuel.elastic4s" %% "elastic4s" % "1.2.1.1" intransitive(),
+    "org.elasticsearch" % "elasticsearch" % "1.2.1",
     "jline" % "jline" % "2.12")
 }
 
