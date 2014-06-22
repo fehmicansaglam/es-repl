@@ -11,13 +11,14 @@ case class Delete(index: String, id: String)
 case class Search(index: String, query: Option[String])
 case class Count(index: String, query: Option[String])
 case class GetMappings(index: String)
+case object ClusterHealth
 
 class CommandParser(val input: ParserInput) extends Parser {
 
   def CommandLine = rule { WhiteSpace ~ Command ~ EOI }
 
   def Command = rule {
-    DisconnectCommand | ConnectCommand | GetCommand | IndexCommand | DeleteCommand | SearchCommand | CountCommand | GetMappingsCommand
+    DisconnectCommand | ConnectCommand | GetCommand | IndexCommand | DeleteCommand | SearchCommand | CountCommand | GetMappingsCommand | ClusterHealthCommand
   }
 
   def ConnectCommand: Rule1[Connect] = rule {
@@ -49,6 +50,8 @@ class CommandParser(val input: ParserInput) extends Parser {
   def GetMappingsCommand: Rule1[GetMappings] = rule {
     "mappings" ~ IndexDefinition ~> GetMappings
   }
+
+  def ClusterHealthCommand: Rule1[ClusterHealth.type] = rule { "health" ~ push(ClusterHealth) }
 
   def HostDefinition: Rule2[String, Int] = rule { (Host ~ Port) | (Host ~ push(9300)) }
 

@@ -118,6 +118,11 @@ object DefaultConsole extends AbstractConsole with Interpreter {
     Success(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(types))
   }
 
+  def doClusterHealth(): InterpretationResult = connected { client =>
+    val response = client.admin.cluster().prepareHealth().execute().actionGet(5000)
+    Success(response.toString)
+  }
+
   def interpret(input: String): String = {
     new CommandParser(input).CommandLine.run().map {
       case Disconnect => doDisconnect()
@@ -128,6 +133,7 @@ object DefaultConsole extends AbstractConsole with Interpreter {
       case Search(index, query) => doSearch(index, query)
       case Count(index, query) => doCount(index, query)
       case GetMappings(index) => doGetMappings(index)
+      case ClusterHealth => doClusterHealth()
       case _ => Warning("Not supported yet:(")
     }.recover {
       case pe: org.parboiled2.ParseError => Warning(pe.formatTraces)
