@@ -123,6 +123,12 @@ object DefaultConsole extends AbstractConsole with Interpreter {
     Success(response.toString)
   }
 
+  def doReindex(_sourceIndex: String, _targetIndex: String): InterpretationResult = connected { client =>
+    import scala.concurrent.ExecutionContext.Implicits.global
+    val response = client.sync.reindex(_sourceIndex, _targetIndex)
+    Success(s"Reindexed ${_sourceIndex} to ${_targetIndex}")
+  }
+
   def interpret(input: String): String = {
     new CommandParser(input).CommandLine.run().map {
       case Disconnect => doDisconnect()
@@ -134,6 +140,7 @@ object DefaultConsole extends AbstractConsole with Interpreter {
       case Count(index, query) => doCount(index, query)
       case GetMappings(index) => doGetMappings(index)
       case ClusterHealth => doClusterHealth()
+      case Reindex(sourceIndex, targetIndex) => doReindex(sourceIndex, targetIndex)
       case _ => Warning("Not supported yet:(")
     }.recover {
       case pe: org.parboiled2.ParseError => Warning(pe.formatTraces)
