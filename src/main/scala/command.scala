@@ -58,7 +58,7 @@ class CommandParser(val input: ParserInput) extends Parser {
 
   def HostDefinition: Rule2[String, Int] = rule { (Host ~ Port) | (Host ~ push(9300)) }
 
-  def Host: Rule1[String] = rule { capture(oneOrMore(CharPredicate.AlphaNum)) ~ WhiteSpace }
+  def Host: Rule1[String] = rule { capture(oneOrMore(CharPredicate.Visible)) ~ WhiteSpace }
 
   def Port: Rule1[Int] = rule {
     capture(oneOrMore(CharPredicate.Digit)) ~> ((port: String) => port.toInt) ~ WhiteSpace

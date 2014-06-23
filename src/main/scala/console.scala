@@ -4,6 +4,7 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.source.DocumentSource
 import org.elasticsearch.action.index.IndexResponse
+import org.elasticsearch.common.settings.ImmutableSettings
 import com.fasterxml.jackson.databind.ObjectMapper
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -35,7 +36,8 @@ object DefaultConsole extends AbstractConsole with Interpreter {
   def doConnect(host: String, port: Int): InterpretationResult = {
     try {
       if (__client.isDefined) __client.get.close
-      __client = Some(ElasticClient.remote(host, port))
+      val settings = ImmutableSettings.settingsBuilder().put("client.transport.ignore_cluster_name", true).build()
+      __client = Some(ElasticClient.remote(settings, (host, port)))
       val response = __client.get.admin.cluster().prepareHealth().setWaitForYellowStatus().execute().actionGet(5000)
       remote = s"${host}:${port}:${response.getClusterName}"
       updatePrompt()
