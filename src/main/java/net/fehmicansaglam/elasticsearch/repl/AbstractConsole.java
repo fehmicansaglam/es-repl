@@ -15,15 +15,34 @@ public abstract class AbstractConsole {
         reader.setPrompt(interpreter().prompt());
     }
 
+    protected String appendLine(String command, String line) {
+        if(command == null) {
+            command = line;
+        } else {
+            command += " " + line;
+            reader.getHistory().replace(command);
+        }
+
+        return command;
+    }
+
     public void start() throws IOException {
         reader = new ConsoleReader();
         reader.setPrompt(interpreter().prompt());
         PrintWriter out = new PrintWriter(reader.getOutput());
 
-        String line;
+        String line, command = null;
         loop:
         while ((line = reader.readLine()) != null) {
-            switch (line) {
+            if (line.charAt(line.length() - 1) == '\\') {
+                reader.setPrompt("> ");
+                command = appendLine(command, line.substring(0, line.length() - 1));
+                continue;
+            } else {
+                command = appendLine(command, line);
+            }
+
+            switch (command) {
                 case "quit":
                 case "q":
                 case "exit":
@@ -36,9 +55,12 @@ public abstract class AbstractConsole {
                     reader.setPrompt(interpreter().prompt());
                     break;
                 default:
-                    out.println(interpreter().interpret(line));
+                    out.println(interpreter().interpret(command));
                     out.flush();
             }
+
+            command = null;
+            reader.setPrompt(interpreter().prompt());
         }
 
         out.println("See you soon!");

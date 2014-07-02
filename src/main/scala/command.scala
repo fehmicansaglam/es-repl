@@ -78,7 +78,9 @@ class CommandParser(val input: ParserInput) extends Parser {
     capture(oneOrMore(CharPredicate.Visible)) ~ WhiteSpace
   }
 
-  def WhiteSpace = rule { zeroOrMore(' ') }
+  def WhiteSpace = rule { zeroOrMore(WhiteSpaceChar) }
+
+  val WhiteSpaceChar = CharPredicate(" \n\r\t\f")
 
   implicit def wspStr(s: String): Rule0 = rule {
     str(s) ~ WhiteSpace
