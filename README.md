@@ -3,6 +3,7 @@ elasticsearch-repl
 
 Elasticsearch REPL built on top of elastic4s
 
+![Ready](http://progressed.io/bar/61?title=ready)
 
 ![Screenshot 1](guide/images/1.png "Screenshot 1")
 
