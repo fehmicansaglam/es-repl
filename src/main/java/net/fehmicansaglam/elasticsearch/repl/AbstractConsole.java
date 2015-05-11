@@ -1,9 +1,9 @@
 package net.fehmicansaglam.elasticsearch.repl;
 
+import jline.console.ConsoleReader;
+
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import jline.console.ConsoleReader;
 
 public abstract class AbstractConsole {
 
@@ -34,7 +34,7 @@ public abstract class AbstractConsole {
         String line, command = null;
         loop:
         while ((line = reader.readLine()) != null) {
-            if (line.charAt(line.length() - 1) == '\\') {
+            if (!line.isEmpty() && line.charAt(line.length() - 1) == '\\') {
                 reader.setPrompt("> ");
                 command = appendLine(command, line.substring(0, line.length() - 1));
                 continue;
