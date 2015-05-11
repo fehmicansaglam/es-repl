@@ -1,5 +1,5 @@
+import sbt.Keys._
 import sbt._
-import Keys._
 
 object Common {
   lazy val prompt = { state: State =>
@@ -10,7 +10,4 @@ object Common {
       "[" + Colors.blue(name) + "] $ "
     }.getOrElse("> ")
   }
-
-  val reactiveMongoVersion = "0.10.0"
-  val playReactiveMongoVersion = "0.10.2"
 }

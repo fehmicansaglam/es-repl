@@ -2,9 +2,9 @@ package net.fehmicansaglam.elasticsearch.repl;
 
 public interface Interpreter {
 
-    public String interpret(String input);
+    String interpret(String input);
 
-    public String prompt();
+    String prompt();
 
-    public void shutdown();
+    void shutdown();
 }
