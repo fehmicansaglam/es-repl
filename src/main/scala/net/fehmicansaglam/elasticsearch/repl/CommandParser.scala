@@ -9,7 +9,8 @@ class CommandParser(val input: ParserInput) extends Parser {
   }
 
   def Command = rule {
-    DisconnectCommand | ConnectCommand | GetCommand | IndexCommand | DeleteCommand | SearchCommand | CountCommand | GetMappingsCommand | ClusterHealthCommand | ReindexCommand
+    DisconnectCommand | ConnectCommand | GetCommand | IndexCommand | DeleteCommand | DropCommand |
+      SearchCommand | CountCommand | GetMappingsCommand | ClusterHealthCommand | ReindexCommand
   }
 
   def ConnectCommand: Rule1[Connect] = rule {
@@ -30,6 +31,10 @@ class CommandParser(val input: ParserInput) extends Parser {
 
   def DeleteCommand: Rule1[Delete] = rule {
     "delete" ~ Id ~ "from" ~ IndexTypeDefinition ~> ((id: String, index: String, typ: String) => Delete(index, typ, id))
+  }
+
+  def DropCommand: Rule1[Drop] = rule {
+    "drop" ~ IndexDefinition ~> Drop
   }
 
   def SearchCommand: Rule1[Search] = rule {

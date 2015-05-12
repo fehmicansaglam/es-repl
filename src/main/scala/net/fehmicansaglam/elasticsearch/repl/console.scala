@@ -8,6 +8,7 @@ import io.searchbox.core.Count.{Builder => CountBuilder}
 import io.searchbox.core.Delete.{Builder => DeleteBuilder}
 import io.searchbox.core.Get.{Builder => GetBuilder}
 import io.searchbox.core.Search.{Builder => SearchBuilder}
+import io.searchbox.indices.DeleteIndex.{Builder => DeleteIndexBuilder}
 
 import scala.concurrent.duration._
 
@@ -97,12 +98,22 @@ object DefaultConsole extends AbstractConsole with Interpreter {
     }
   }
 
+  def doDrop(_index: String): InterpretationResult = connected { client =>
+    val builder = new DeleteIndexBuilder(_index)
+    val response = client.execute(builder.build())
+
+    if (response.isSucceeded) Success("Dropped")
+    else Warning(response.getErrorMessage)
+  }
+
   def doSearch(_index: String, _query: Option[String]): InterpretationResult = connected { client =>
     val builder = new SearchBuilder(
       _query.map(q => s"""{ "query": { "query_string": { "query": "$q" } } }""").getOrElse(""))
       .addIndex(_index)
     val response = client.execute(builder.build())
-    Success(prettyPrint(response.getJsonObject))
+
+    if (response.isSucceeded) Success(prettyPrint(response.getJsonObject))
+    else Warning(response.getErrorMessage)
   }
 
   def doCount(_index: String, _query: Option[String]): InterpretationResult = connected { client =>
@@ -110,7 +121,9 @@ object DefaultConsole extends AbstractConsole with Interpreter {
     _query.foreach(q => builder.query( s"""{ "query": { "query_string": { "query": "$q" } } }"""))
 
     val response = client.execute(builder.build())
-    Success(response.getCount.toLong.toString)
+
+    if (response.isSucceeded) Success(response.getCount.toLong.toString)
+    else Warning(response.getErrorMessage)
   }
 
   //  def doGetMappings(_index: String): InterpretationResult = connected { client =>
@@ -139,6 +152,7 @@ object DefaultConsole extends AbstractConsole with Interpreter {
       case Get(index, id) => doGet(index, id)
       //      case Index(index, json) => doIndex(index, json)
       case Delete(index, typ, id) => doDelete(index, typ, id)
+      case Drop(index) => doDrop(index)
       case Search(index, query) => doSearch(index, query)
       case Count(index, query) => doCount(index, query)
       //      case GetMappings(index) => doGetMappings(index)

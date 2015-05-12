@@ -12,6 +12,8 @@ case class Index(index: String, json: String) extends Command
 
 case class Delete(index: String, typ: String, id: String) extends Command
 
+case class Drop(index: String) extends Command
+
 case class Search(index: String, query: Option[String]) extends Command
 
 case class Count(index: String, query: Option[String]) extends Command
