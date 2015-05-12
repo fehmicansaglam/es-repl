@@ -3,10 +3,12 @@ elasticsearch-repl
 
 Elasticsearch REPL built on top of Jest
 
-![Ready](http://progressed.io/bar/61?title=ready)
+[![Codacy Badge](https://www.codacy.com/project/badge/44c69ed6a4cf424181fae338785d0cf9)](https://www.codacy.com/app/fehmicansaglam/es-repl)
+![Ready](http://progressed.io/bar/85?title=ready)
+[![Licence](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 ## Installation
-Download the latest release from releases. `es-repl` script is a shell script with a couple of jars embedded. Open a terminal and run `es-repl` by using the command below:
+Download the latest release from [here](https://github.com/fehmicansaglam/es-repl/releases/latest). `es-repl` script is a shell script with a couple of jars embedded. Open a terminal and run `es-repl` by using the command below:
 
 ```
 $ ./es-repl
