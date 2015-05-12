@@ -64,6 +64,14 @@ Deletes a document with the given type and id.
 delete AU01vx8NLBXsJPBUOC5C from users/user
 ```
 
+#### drop
+
+Drops an index.
+
+```
+drop users
+```
+
 #### search
 
 Searchs for documents in an index.
@@ -71,6 +79,14 @@ Searchs for documents in an index.
 ```
 search in users query
 ```
+
+#### quit
+
+Quits from the REPL. `q` and `exit` are aliases for `quit`.
+
+#### clear
+
+Clears the REPL screen. `cl` is an alias for `clear`.
 
 ## Screenshots
 
